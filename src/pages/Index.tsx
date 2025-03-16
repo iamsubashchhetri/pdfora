@@ -1,12 +1,30 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import React from 'react';
+import { motion } from 'framer-motion';
+import Header from '@/components/Header';
+import PDFProcessor from '@/components/PDFProcessor';
+
+const Index: React.FC = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <Header />
+      
+      <main className="container px-4 py-8">
+        <PDFProcessor />
+      </main>
+      
+      <footer className="py-8 mt-16 border-t border-gray-200">
+        <div className="container px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="text-center text-gray-500 text-sm"
+          >
+            © {new Date().getFullYear()} PDF Magic · All rights reserved
+          </motion.div>
+        </div>
+      </footer>
     </div>
   );
 };
