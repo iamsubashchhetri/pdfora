@@ -32,8 +32,8 @@ const Index: React.FC = () => {
             </ul>
             
             <span className="block mt-2">
-              The AI will analyze your request and modify the PDF accordingly. You'll see the changes highlighted
-              in the edited document that you can download.
+              Note: Currently, the app demonstrates the concept of AI-powered PDF editing by modifying the document with visible changes. 
+              For full text replacement with preserved formatting, a more advanced PDF manipulation library would be needed.
             </span>
           </p>
         </motion.div>
