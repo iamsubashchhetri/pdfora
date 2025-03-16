@@ -1,22 +1,35 @@
+
 import * as pdfjs from 'pdfjs-dist';
 
 // Initialize PDF.js worker
-// In a real implementation, we would properly set up the worker
-// For this demo, we're keeping it simple
 const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker.entry');
+pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker.default;
 
 // Extract text from PDF
 export const getPdfText = async (file: File): Promise<string> => {
-  // In a real implementation, we would use PDF.js to extract the text
-  // For this demo, we'll return a placeholder
-  
   try {
-    // For a proper implementation, we would:
-    // 1. Load the PDF file
-    // 2. Get the text content from each page
-    // 3. Combine the text into a single string
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
     
-    return "This is a placeholder for the extracted text from the PDF.";
+    let fullText = '';
+    
+    // Extract text from each page
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(' ');
+      
+      fullText += pageText + '\n';
+    }
+    
+    if (fullText.trim() === '') {
+      // If we couldn't extract any text, use a placeholder
+      return "This PDF appears to be an image-based document or has no extractable text.";
+    }
+    
+    return fullText;
   } catch (error) {
     console.error("Error extracting PDF text:", error);
     throw new Error("Failed to extract text from PDF");
@@ -33,16 +46,22 @@ export const processPromptWithAI = async (
   // 2. Parse the AI response to determine what action to take
   // 3. Return the action and details
   
-  // For this demo, we'll return a simulated response
-  // This would identify what changes to make to the PDF
-  
   try {
     // Simulate AI processing delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     // Sample logic to interpret some common prompts
-    if (prompt.toLowerCase().includes('change my name')) {
-      const newName = prompt.split('to ')[1] || 'Unknown';
+    const promptLower = prompt.toLowerCase();
+    
+    if (promptLower.includes('change my name') || promptLower.includes('update my name')) {
+      let newName = "Unknown";
+      
+      // Try to extract the new name from the prompt
+      const nameParts = prompt.match(/(?:to|with)\s+([A-Za-z\s]+)(?:\.|\s|$)/);
+      if (nameParts && nameParts[1]) {
+        newName = nameParts[1].trim();
+      }
+      
       return {
         action: 'replace_text',
         details: {
@@ -51,33 +70,72 @@ export const processPromptWithAI = async (
           field_type: 'name'
         }
       };
-    } else if (prompt.toLowerCase().includes('add job responsibility')) {
-      const responsibility = prompt.split(':')[1] || 'Unspecified responsibility';
+    } else if (promptLower.includes('add job responsibility') || promptLower.includes('add responsibility')) {
+      let responsibility = "New responsibility";
+      
+      // Try to extract the responsibility from the prompt
+      const responsParts = prompt.split(/:\s*/);
+      if (responsParts.length > 1) {
+        responsibility = responsParts[1].trim();
+      }
+      
       return {
         action: 'add_text',
         details: {
-          text: responsibility.trim(),
+          text: responsibility,
           section: 'responsibilities'
         }
       };
-    } else if (prompt.toLowerCase().includes('update my title')) {
-      const newTitle = prompt.split('to ')[1] || 'Unknown title';
+    } else if (promptLower.includes('update my title') || promptLower.includes('change my title')) {
+      let newTitle = "Unknown title";
+      
+      // Try to extract the new title from the prompt
+      const titleParts = prompt.match(/(?:to|with)\s+([A-Za-z\s]+)(?:\.|\s|$)/);
+      if (titleParts && titleParts[1]) {
+        newTitle = titleParts[1].trim();
+      }
+      
       return {
         action: 'replace_text',
         details: {
           old_text: 'Job Title',
           new_text: newTitle,
-          field_type: 'job_title'
+          field_type: 'job title'
         }
       };
-    } else if (prompt.toLowerCase().includes('update my email')) {
-      const newEmail = prompt.split('to ')[1] || 'email@example.com';
+    } else if (promptLower.includes('update my email') || promptLower.includes('change my email')) {
+      let newEmail = "email@example.com";
+      
+      // Try to extract the new email from the prompt
+      const emailParts = prompt.match(/(?:to|with)\s+([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})(?:\.|\s|$)/);
+      if (emailParts && emailParts[1]) {
+        newEmail = emailParts[1].trim();
+      }
+      
       return {
         action: 'replace_text',
         details: {
           old_text: 'Email',
           new_text: newEmail,
           field_type: 'email'
+        }
+      };
+    } else if (promptLower.includes('remove') || promptLower.includes('delete')) {
+      // Try to extract what to remove
+      let sectionToRemove = "section";
+      
+      if (promptLower.includes('education')) {
+        sectionToRemove = "education";
+      } else if (promptLower.includes('experience')) {
+        sectionToRemove = "experience";
+      } else if (promptLower.includes('skill')) {
+        sectionToRemove = "skills";
+      }
+      
+      return {
+        action: 'remove_text',
+        details: {
+          section: sectionToRemove
         }
       };
     } else {
