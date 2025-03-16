@@ -18,12 +18,23 @@ const Index: React.FC = () => {
           transition={{ delay: 0.8, duration: 0.5 }}
           className="mt-16 max-w-2xl mx-auto p-4 bg-yellow-50 border border-yellow-100 rounded-lg"
         >
-          <h3 className="text-sm font-medium text-yellow-800 mb-2">📝 How This Demo Works</h3>
-          <p className="text-xs text-yellow-700">
-            This is a demonstration of AI-powered PDF editing. When you process a PDF, 
-            the system will analyze your prompt, identify the requested changes, and apply them to create a new PDF. 
-            For this demo, we simulate the text extraction and modifications without actually changing the PDF content.
-            Try prompts like "Change my name to John Doe" or "Update my email to john@example.com".
+          <h3 className="text-sm font-medium text-yellow-800 mb-2">📝 How to Use This App</h3>
+          <p className="text-xs text-yellow-700 space-y-2">
+            <span className="block">
+              This app allows you to edit PDFs using simple text prompts. Upload your PDF, then enter instructions like:
+            </span>
+            
+            <ul className="list-disc ml-4 mt-2 space-y-1">
+              <li><strong>"Change my name to John Doe"</strong> - Replaces names with a new one</li>
+              <li><strong>"Update my email to john@example.com"</strong> - Changes email addresses</li>
+              <li><strong>"Add job responsibility: Led a team of 5 developers"</strong> - Adds new text</li>
+              <li><strong>"Remove the education section"</strong> - Removes specific content</li>
+            </ul>
+            
+            <span className="block mt-2">
+              The AI will analyze your request and modify the PDF accordingly. You'll see the changes highlighted
+              in the edited document that you can download.
+            </span>
           </p>
         </motion.div>
       </main>
